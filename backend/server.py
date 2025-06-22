@@ -80,6 +80,38 @@ def init_db_from_csv():
 
 init_db_from_csv()
 
+def init_music_db_from_csv():
+    db_path = os.path.join(os.path.dirname(__file__), 'dataset', 'music.db')
+    csv_path = os.path.join(os.path.dirname(__file__), 'dataset', 'spotify_music.csv')
+    conn = sqlite3.connect(db_path)
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS music (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT,
+        artist TEXT,
+        top_genre TEXT,
+        year INTEGER,
+        bpm INTEGER,
+        nrgy INTEGER,
+        dnce INTEGER,
+        dB INTEGER,
+        live INTEGER,
+        val INTEGER,
+        dur INTEGER,
+        acous INTEGER,
+        spch INTEGER,
+        pop INTEGER
+    )''')
+    with open(csv_path, encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            c.execute('''INSERT OR IGNORE INTO music (title, artist, top_genre, year, bpm, nrgy, dnce, dB, live, val, dur, acous, spch, pop) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+                      (row['title'], row['artist'], row['top genre'], row['year'], row['bpm'], row['nrgy'], row['dnce'], row['dB'], row['live'], row['val'], row['dur'], row['acous'], row['spch'], row['pop']))
+    conn.commit()
+    conn.close()
+
+init_music_db_from_csv()
+
 def load_movies_dataset():
     db_path = os.path.join(os.path.dirname(__file__), 'dataset', 'movies.db')
     conn = sqlite3.connect(db_path)
@@ -143,7 +175,39 @@ async def recommend_content(req: RecommendationRequest, ai_only: bool = Query(Fa
         total=total_matches
     )
 
+def load_music_dataset():
+    db_path = os.path.join(os.path.dirname(__file__), 'dataset', 'music.db')
+    conn = sqlite3.connect(db_path)
+    c = conn.cursor() 
+    c.execute('SELECT title, artist, top_genre, year, bpm, nrgy, dnce, dB, live, val, dur, acous, spch, pop FROM music')
+    music = []
+    for row in c.fetchall():
+        song = {
+            'title': row[0],
+            'artist': row[1],
+            'top_genre': row[2],
+            'year': row[3],
+            'bpm': row[4],
+            'nrgy': row[5],
+            'dnce': row[6],
+            'dB': row[7],
+            'live': row[8],
+            'val': row[9],
+            'dur': row[10],
+            'acous': row[11],
+            'spch': row[12],
+            'pop': row[13]
+        }
+        music.append(song)
+    conn.close()
+    return music
+
 @app.get("/all-movies")
 def get_all_movies():
     movies = load_movies_dataset()
     return JSONResponse(content=movies)
+
+@app.get("/all-music")
+def get_all_music():
+    music = load_music_dataset()
+    return JSONResponse(content=music)
