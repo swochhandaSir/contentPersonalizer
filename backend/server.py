@@ -5,6 +5,7 @@ from typing import List, Optional
 import csv
 import os
 from fastapi.responses import JSONResponse
+import sqlite3
 
 app = FastAPI()
 
@@ -55,17 +56,47 @@ def generate_personalized_response(context_docs, user_profile, query):
 
 from fastapi import Query
 
-def load_movies_dataset():
-    dataset_path = os.path.join(os.path.dirname(__file__), 'dataset', 'MovieGenre.csv')
-    movies = []
-    with open(dataset_path, encoding='latin1') as csvfile:
+def init_db_from_csv():
+    db_path = os.path.join(os.path.dirname(__file__), 'dataset', 'movies.db')
+    csv_path = os.path.join(os.path.dirname(__file__), 'dataset', 'Movies.csv')
+    conn = sqlite3.connect(db_path)
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS movies (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        Release_Date TEXT,
+        Title TEXT,
+        Overview TEXT,
+        Rating REAL,
+        Genre TEXT,
+        Poster_Url TEXT
+    )''')
+    with open(csv_path, encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
-            imdb_id = row.get('imdbId')
-            poster_path = os.path.join(os.path.dirname(__file__), 'dataset', 'SampleMoviePosters', f"{imdb_id}.jpg")
-            if os.path.exists(poster_path):
-                row['LocalPoster'] = f"/static/{imdb_id}.jpg"
-            movies.append(row)
+            c.execute('''INSERT OR IGNORE INTO movies (Release_Date, Title, Overview, Rating, Genre, Poster_Url) VALUES (?, ?, ?, ?, ?, ?)''',
+                      (row['Release_Date'], row['Title'], row['Overview'], row['Rating'], row['Genre'], row['Poster_Url']))
+    conn.commit()
+    conn.close()
+
+init_db_from_csv()
+
+def load_movies_dataset():
+    db_path = os.path.join(os.path.dirname(__file__), 'dataset', 'movies.db')
+    conn = sqlite3.connect(db_path)
+    c = conn.cursor()
+    c.execute('SELECT Release_Date, Title, Overview, Rating, Genre, Poster_Url FROM movies')
+    movies = []
+    for row in c.fetchall():
+        movie = {
+            'Release_Date': row[0],
+            'Title': row[1],
+            'Overview': row[2],
+            'Rating': row[3],
+            'Genre': row[4],
+            'Poster_Url': row[5]
+        }
+        movies.append(movie)
+    conn.close()
     return movies
 
 MOVIES_DATASET = load_movies_dataset()

@@ -94,6 +94,18 @@ function App() {
 
   return (
     <div className="App">
+      <nav className="navbar">
+        <div className="navbar-logo">
+          <img src={logo} alt="Logo" style={{height: 38, marginRight: 12}} />
+          <span className="navbar-title">Content Personalizer</span>
+        </div>
+        <ul className="navbar-links">
+          <li><a href="#home">Home</a></li>
+          <li><a href="#movies">Movies</a></li>
+          <li><a href="#music">Music</a></li>
+          <li><a href="#articles">Articles</a></li>
+        </ul>
+      </nav>
       <header className="App-header" style={{background: 'none', color: '#222'}}>
         <h2>Content Personalization Agent</h2>
         <form onSubmit={handleSearch} className="search-bar">
@@ -132,45 +144,43 @@ function App() {
       {recommendations.map((item, idx) => {
         const card = typeof item === 'object' ? item : {};
         return (
-          <div key={idx} className="recommendation-card">
-
-                    <img className="recommendation-thumbnail" src={card.LocalPoster || card.Poster || 'https://via.placeholder.com/320x180?text=Thumbnail'} alt="thumbnail" />
-                    <div className="recommendation-content">
-                      <div className="recommendation-title">{card.Title}</div>
-                      <div className="recommendation-meta">
-                        {card.imdbId && <span><b>IMDb ID:</b> {card.imdbId} &nbsp;</span>}
-                        {card['Imdb Link'] && <span><b>IMDb Link:</b> <a href={card['Imdb Link']} target="_blank" rel="noopener noreferrer">{card['Imdb Link']}</a> &nbsp;</span>}
-                        {card['IMDB Score'] && <span><b>IMDB Score:</b> {card['IMDB Score']} &nbsp;</span>}
-                        {card.Genre && <span><b>Genre:</b> {card.Genre} &nbsp;</span>}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            {!loading && recommendations.length > 0 && (
-              <div className="pagination">
-                <button 
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  className="pagination-button"
-                >
-                  Previous
-                </button>
-                <span className="pagination-info">
-                  Page {currentPage} of {totalPages}
-                </span>
-                <button 
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  className="pagination-button"
-                >
-                  Next
-                </button>
+          <div key={idx} className="recommendation-card" style={{boxShadow: '0 4px 16px rgba(25, 118, 210, 0.15)', borderRadius: 16, overflow: 'hidden', background: '#fff', margin: 12, transition: 'transform 0.2s', transform: 'scale(1)', border: '1px solid #e3e3e3', maxWidth: 320}}>
+            <img className="recommendation-thumbnail" src={card.Poster_Url || card.LocalPoster || card.Poster || 'https://via.placeholder.com/320x180?text=Thumbnail'} alt="thumbnail" style={{width: '100%', height: 200, objectFit: 'cover', borderTopLeftRadius: 16, borderTopRightRadius: 16}} />
+            <div className="recommendation-content" style={{padding: 16}}>
+              <div className="recommendation-title" style={{fontWeight: 700, fontSize: 20, marginBottom: 8, color: '#1976d2'}}>{card.Title}</div>
+              <div className="recommendation-meta" style={{fontSize: 15, marginBottom: 8, color: '#555'}}>
+                {card.Genre && <span><b>Genre:</b> {card.Genre} &nbsp;</span>}
+                {card.Rating && <span style={{background: '#ffd700', color: '#222', borderRadius: 8, padding: '2px 8px', marginLeft: 8}}><b>★ {card.Rating}</b></span>}
               </div>
-            )}
+              {card.Overview && <div style={{fontSize: 14, color: '#666', marginBottom: 8, maxHeight: 60, overflow: 'hidden', textOverflow: 'ellipsis'}}>{card.Overview}</div>}
+            </div>
           </div>
-        )}
+        );
+      })}
+    </div>
+    {!loading && recommendations.length > 0 && (
+      <div className="pagination">
+        <button 
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="pagination-button"
+        >
+          Previous
+        </button>
+        <span className="pagination-info">
+          Page {currentPage} of {totalPages}
+        </span>
+        <button 
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="pagination-button"
+        >
+          Next
+        </button>
+      </div>
+    )}
+  </div>
+)}
 
         <div style={{width: '100%', maxWidth: 1200, margin: '32px auto 0'}}>
           <h3 style={{textAlign: 'left', margin: '32px 0 16px 8px', color: '#1976d2'}}>All Movies</h3>
@@ -192,16 +202,15 @@ function App() {
               </>
             ) : (
               paginatedMovies.map((card, idx) => (
-                <div key={idx} className="recommendation-card">
-                  <img className="recommendation-thumbnail" src={card.LocalPoster || card.Poster || 'https://via.placeholder.com/320x180?text=Thumbnail'} alt="thumbnail" />
-                  <div className="recommendation-content">
-                    <div className="recommendation-title">{card.Title}</div>
-                    <div className="recommendation-meta">
-                      {card.imdbId && <span><b>IMDb ID:</b> {card.imdbId} &nbsp;</span>}
-                      {card['Imdb Link'] && <span><b>IMDb Link:</b> <a href={card['Imdb Link']} target="_blank" rel="noopener noreferrer">{card['Imdb Link']}</a> &nbsp;</span>}
-                      {card['IMDB Score'] && <span><b>IMDB Score:</b> {card['IMDB Score']} &nbsp;</span>}
+                <div key={idx} className="recommendation-card" style={{boxShadow: '0 4px 16px rgba(25, 118, 210, 0.15)', borderRadius: 16, overflow: 'hidden', background: '#fff', margin: 12, transition: 'transform 0.2s', transform: 'scale(1)', border: '1px solid #e3e3e3', maxWidth: 320}}>
+                  <img className="recommendation-thumbnail" src={card.Poster_Url || card.LocalPoster || card.Poster || 'https://via.placeholder.com/320x180?text=Thumbnail'} alt="thumbnail" style={{width: '100%', height: 200, objectFit: 'cover', borderTopLeftRadius: 16, borderTopRightRadius: 16}} />
+                  <div className="recommendation-content" style={{padding: 16}}>
+                    <div className="recommendation-title" style={{fontWeight: 700, fontSize: 20, marginBottom: 8, color: '#1976d2'}}>{card.Title}</div>
+                    <div className="recommendation-meta" style={{fontSize: 15, marginBottom: 8, color: '#555'}}>
                       {card.Genre && <span><b>Genre:</b> {card.Genre} &nbsp;</span>}
+                      {card.Rating && <span style={{background: '#ffd700', color: '#222', borderRadius: 8, padding: '2px 8px', marginLeft: 8}}><b>★ {card.Rating}</b></span>}
                     </div>
+                    {card.Overview && <div style={{fontSize: 14, color: '#666', marginBottom: 8, maxHeight: 60, overflow: 'hidden', textOverflow: 'ellipsis'}}>{card.Overview}</div>}
                   </div>
                 </div>
               ))
